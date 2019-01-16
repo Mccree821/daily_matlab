@@ -1,0 +1,84 @@
+seis=load('seis.txt');
+ts=seis(:,1);
+t=ts-1;
+x=seis(:,2);
+fs=0.002;
+df=1/4;
+x1=0:2000;
+df1=x1*df;
+X=fft(x);
+X1=abs(X);
+
+% subplot(211)
+% plot(t,x)
+% subplot(212)
+% plot(X1)
+
+% xx=flip(x);
+% X2=abs(fft(xx));
+% subplot(221);plot(x);title('地震信号');
+% subplot(222);plot(xx);title('反褶地震信号')
+% subplot(223);plot(X1);title('地震信号频谱')
+% subplot(224);plot(X2);title('反褶地震信号频谱')
+
+% subplot(221);plot(t,x);title('地震信号');
+% subplot(222);plot(0.5*t,xx);xlim([0,4]);title('压缩地震信号')
+% subplot(223);plot(df1,X1/1001);xlim([0,1000]);title('地震信号频谱')
+% subplot(224);plot(df1*2,X1/1001);xlim([0,1000]);title('压缩地震信号频谱')
+
+% win_low=zeros(1,2001)+1;
+% win_low(81:1921)=0;
+% X3=X.*win_low';
+% x3=ifft(X3);
+% plot(real(x3))
+% subplot(221);plot(x);title('地震信号');
+% subplot(222);plot(real(x3));title('低通地震信号')
+% subplot(223);plot(df1,X1);title('地震信号频谱')
+% subplot(224);plot(df1,abs(X3));title('低通地震信号频谱')
+
+% win_low=zeros(1,2001);
+% win_low(201:1801)=1;
+% X4=X.*win_low';
+% x4=ifft(X4);
+% plot(real(x4))
+% subplot(221);plot(x);title('地震信号');
+% subplot(222);plot(real(x4));title('高通地震信号')
+% subplot(223);plot(df1,X1);title('地震信号频谱')
+% subplot(224);plot(df1,abs(X4));title('高通地震信号频谱')
+
+%全相位滤波器
+% win_low=zeros(1,2001);
+% win_low(81:201)=1;win_low(1801:1921)=1;
+% X5=X.*win_low';
+% x5=ifft(X5);
+% plot(real(x5))
+% subplot(221);plot(x);title('地震信号');
+% subplot(222);plot(real(x5));title('带通地震信号')
+% subplot(223);plot(df1,X1);title('地震信号频谱')
+% subplot(224);plot(df1,abs(X5));title('带通地震信号频谱')
+close all;
+[y,Fs]= audioread('sound.wav');
+g=y(:,1);
+b=[1/1.2 1/1.4 1];%因为我们要的是一个稳定的系统，%所以对于极点是有要求的;
+a=[1 1/1.4 1/1.2];
+y=filter(b,a,g);
+figure(1);
+freqs(b,a);
+figure(2);
+freqz(b,a);
+[H,F]=freqz(b,a);
+abH=abs(H);
+angH=unwrap(angle(H));
+figure(3);
+G=fft(g);
+Y=fft(y);
+Ang_G=unwrap(angle(G));
+Ang_Y=unwrap(angle(Y));
+subplot 221; plot(angH);
+title('全通滤波器相位图');
+subplot 222; plot(Ang_G(1:301056/2));
+title('输入信号相位图');
+subplot 223; plot(Ang_Y(1:301056/2));
+title('输出信号相位图');
+subplot 224; plot(Ang_Y(1:301056/2)-Ang_G(1:301056/2))
+title('输出对输入的相移图');
